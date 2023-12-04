@@ -7,7 +7,8 @@ let engine;
 let world;
 let grounds = [];
 
-let character;
+let character1;
+let character2;
 let obstacles = [];
 
 // ml5.js
@@ -27,13 +28,14 @@ function setup(){
   grounds.push(new Boundary(width/2, height, width, 10));
   World.add(world, grounds);
 
-  character = new Character(-10, -10, 5);
+  character1 = new Character(-10, -10, 5);
+  character2 = new Character(50, 430, 20);
 
   cam = createCapture(VIDEO);
   cam.hide();
 
   const options = {
-    flipHorizontal: false, // boolean value for if the video should be flipped, defaults to false
+    flipHorizontal: true, // boolean value for if the video should be flipped, defaults to false
     maxContinuousChecks: Infinity, // How many frames to go without running the bounding box detector. Defaults to infinity, but try a lower value if the detector is consistently producing bad predictions.
     detectionConfidence: 0.8, // Threshold for discarding a prediction. Defaults to 0.8.
     scoreThreshold: 0.75, // A threshold for removing multiple (likely duplicate) detections based on a "non-maximum suppression" algorithm. Defaults to 0.75
@@ -61,7 +63,8 @@ function draw(){
     if (frameCount % 50 == 0) obstacles.push(new obstacle(width/2, 80, 40, 40));
   }
 
-  if (detections.length > 0) drawCharacter();
+  if (detections.length > 0) updateCharacter1();
+  updateCharacter2();
 
   if (obstacles.legnth != 0) {
     for (let obstacle of obstacles) {
@@ -73,10 +76,13 @@ function draw(){
     ground.show();
   }
 
+  character1.show();
+  character2.show();
+
   Engine.update(engine);
 }
 
-function drawCharacter() {
+function updateCharacter1() {
   for (let i=0; i<detections.length; i++) {
     let tX = detections[i].landmarks[4][0];
     let tY = detections[i].landmarks[4][1];
@@ -99,4 +105,26 @@ function drawCharacter() {
     let dt = dist(tX, tY, avgX, avgY);
     let it = dist(iX, iY, avgX, avgY);
     let mt = dist(mX, mY, avgX, avgY);
-    let rt = dist(rX
+    let rt = dist(rX, rY, avgX, avgY);
+    let pt = dist(pX, pY, avgX, avgY);
+
+    let distance = max(dt, it, mt, rt, pt);
+
+    character1.update(avgX, avgY, distance);
+  }
+}
+
+
+function keyPressed() {
+  if (keyCode == UP_ARROW) {
+    Matter.Body.applyForce(character2.body, character2.body.position, {x: 0, y: -0.05});
+  }
+}
+
+function updateCharacter2() {
+  if (keyIsDown(RIGHT_ARROW)) {
+    Matter.Body.applyForce(character2.body, character2.body.position, {x: 0.005, y: 0});
+  } else if (keyIsDown(LEFT_ARROW)) {
+    Matter.Body.applyForce(character2.body, character2.body.position, {x: -0.005, y: 0});
+  }
+}
