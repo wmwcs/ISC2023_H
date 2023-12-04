@@ -1,36 +1,13 @@
-// matter.js
-var Engine = Matter.Engine;
-var World = Matter.World;
-var Bodies = Matter.Bodies;
-
-let engine;
-let world;
-let grounds = [];
-
-let character;
-let obstacles = [];
-
-// ml5.js
 let handpose;
 let detections = [];
 
 let cam;
 
+
 function setup(){
   createCanvas(640, 480, WEBGL);
 
-  engine = Engine.create();
-  world = engine.world;
-  grounds.push(new Boundary(0, height/2, 10, height));
-  grounds.push(new Boundary(width, height/2, 10, height));
-  grounds.push(new Boundary(width/2, 0, width, 10));
-  grounds.push(new Boundary(width/2, height, width, 10));
-  World.add(world, grounds);
-
-  character = new Character(-10, -10, 5);
-
   cam = createCapture(VIDEO);
-  cam.hide();
 
   const options = {
     flipHorizontal: false, // boolean value for if the video should be flipped, defaults to false
@@ -57,26 +34,20 @@ function draw(){
   background(255);
   translate(-width/2, -height/2);
 
-  if (obstacles.length < 10) {
-    if (frameCount % 50 == 0) obstacles.push(new obstacle(width/2, 80, 40, 40));
+  if(detections.length > 0){
+    // drawLandmarks([0, 1], 0);//palm base
+    // drawLandmarks([1, 5], 60);//thumb
+    // drawLandmarks([5, 9], 120);//index finger
+    // drawLandmarks([9, 13], 180);//middle finger
+    // drawLandmarks([13, 17], 240);//ring finger
+    // drawLandmarks([17, 21], 300);//pinky
+
+    drawCircle();
   }
-
-  if (detections.length > 0) drawCharacter();
-
-  if (obstacles.legnth != 0) {
-    for (let obstacle of obstacles) {
-      obstacle.show();
-    }
-  }
-
-  for (let ground of grounds) {
-    ground.show();
-  }
-
-  Engine.update(engine);
 }
 
-function drawCharacter() {
+function drawCircle() {
+  fill(255, 0, 0);
   for (let i=0; i<detections.length; i++) {
     let tX = detections[i].landmarks[4][0];
     let tY = detections[i].landmarks[4][1];
@@ -99,4 +70,25 @@ function drawCharacter() {
     let dt = dist(tX, tY, avgX, avgY);
     let it = dist(iX, iY, avgX, avgY);
     let mt = dist(mX, mY, avgX, avgY);
-    let rt = dist(rX
+    let rt = dist(rX, rY, avgX, avgY);
+    let pt = dist(pX, pY, avgX, avgY);
+
+    let distance = max(dt, it, mt, rt, pt);
+
+    ellipse(avgX, avgY, distance * 2, distance * 2);
+  }
+}
+
+function drawLandmarks(indexArray, hue){
+    noFill();
+    strokeWeight(10);
+    for(let i=0; i<detections.length; i++){
+      for(let j=indexArray[0]; j<indexArray[1]; j++){
+        let x = detections[i].landmarks[j][0];
+        let y = detections[i].landmarks[j][1];
+        let z = detections[i].landmarks[j][2];
+        stroke(hue, 40, 255);
+        point(x, y);
+      }
+    }
+  }
