@@ -102,29 +102,4 @@ function updateCharacter1() {
     let avgX = (tX + iX + mX + rX + pX) / 5;
     let avgY = (tY + iY + mY + rY + pY) / 5;
 
-    let dt = dist(tX, tY, avgX, avgY);
-    let it = dist(iX, iY, avgX, avgY);
-    let mt = dist(mX, mY, avgX, avgY);
-    let rt = dist(rX, rY, avgX, avgY);
-    let pt = dist(pX, pY, avgX, avgY);
-
-    let distance = max(dt, it, mt, rt, pt);
-
-    character1.update(avgX, avgY, distance);
-  }
-}
-
-
-function keyPressed() {
-  if (keyCode == UP_ARROW) {
-    Matter.Body.applyForce(character2.body, character2.body.position, {x: 0, y: -0.05});
-  }
-}
-
-function updateCharacter2() {
-  if (keyIsDown(RIGHT_ARROW)) {
-    Matter.Body.applyForce(character2.body, character2.body.position, {x: 0.005, y: 0});
-  } else if (keyIsDown(LEFT_ARROW)) {
-    Matter.Body.applyForce(character2.body, character2.body.position, {x: -0.005, y: 0});
-  }
-}
+    le
